@@ -1,13 +1,13 @@
 import firebase from "firebase";
 
 const config = {
-  apiKey: "AIzaSyC1iFKG2mn7DFE5uiZq1q3rw0M-ybsGkmM",
-  authDomain: "test-391eb.firebaseapp.com",
-  projectId: "test-391eb",
-  storageBucket: "test-391eb.appspot.com",
-  messagingSenderId: "628315558506",
-  appId: "1:628315558506:web:7b67f9b3fd6352f9eff013",
-  measurementId: "G-JBBVMQY5WB",
+  apiKey: "AIzaSyCC9RWRzdfIoLLNOPx7zL0MIYxDmxit2Vg",
+  authDomain: "consulta-banco-gente.firebaseapp.com",
+  projectId: "consulta-banco-gente",
+  storageBucket: "consulta-banco-gente.appspot.com",
+  messagingSenderId: "1061846064211",
+  appId: "1:1061846064211:web:1879de64dae5227c4b7aa6",
+  measurementId: "G-QWMEN59VHL"
 };
 firebase.initializeApp(config);
 

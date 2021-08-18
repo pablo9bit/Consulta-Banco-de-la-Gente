@@ -1,13 +1,15 @@
-import TestFireStore from "./components/TestFireStore";
-import TestStorage from "./components/TestStorage";
+/* import TestFireStore from "./components/TestFireStore";
+import TestStorage from "./components/TestStorage"; */
+import FormConsulta from "./components/FormConsulta";
+
 
 function App() {
   return (
     <div className="App">
-      <TestFireStore />
+      <FormConsulta />
       <br></br>
       <br></br>
-      <TestStorage/>
+    
       
     </div>
   );
