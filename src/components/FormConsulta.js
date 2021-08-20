@@ -49,7 +49,7 @@ const FormConsulta = () => {
             <div className="text-center p-3">
                 <b>CONSULTA DE ESTADO SOLICITUD CREDITO LIBRE DISPONIBILIDAD</b>
             </div>
-            <form onSubmit={onSubmit} style={{ margin: "10px" }}>
+            <form onSubmit={onSubmit} style={{ margin: "50px" }}>
                 <label htmlFor="cuil">CUIL: </label>
                 <input
                     type="text"
@@ -75,7 +75,7 @@ const FormConsulta = () => {
 
             {resultado ?
 
-                <table className="table table-striped row p-3" >
+                <table className="table table-striped row p-3"   >
 
                     <tbody>
                         <tr>
