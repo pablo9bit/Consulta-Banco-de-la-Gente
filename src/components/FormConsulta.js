@@ -1,7 +1,10 @@
 import { useState } from "react";
 import firebase from "../config/firebase";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const FormConsulta = () => {
+
+    const [resultado, setResultado] = useState(null);
 
     const [DatosForm, LeerForm] = useState({ cuil: "" });
     const { cuil } = DatosForm;
@@ -20,19 +23,20 @@ const FormConsulta = () => {
             //setAlerta({ msg: "Todos los campos son obligatorios", class: "danger" });
             return;
         } else {
-            consultar();
+            consultar(parseInt(cuil));
         }
     };
 
 
-    const consultar = async () => {
-        const db = firebase.firestore();
-        db.settings({ timestampsInSnapshots: true });
+    const consultar = async (micuil) => {
 
-        const baseref = db.collection("base");
-        const resultado = await baseref.where('cuit', '==', cuil).get();
-        resultado.forEach(doc => {
-            console.log(doc.data());
+        const db = firebase.database();
+        const ref = db.ref('/');
+
+        //console.log(cuil);
+        ref.orderByChild('CUIT').equalTo(micuil).on('child_added', (snapshot) => {
+            console.log(snapshot.val());
+            setResultado(snapshot.val());
         });
 
     };
@@ -42,7 +46,9 @@ const FormConsulta = () => {
         <div>
             <img src="header_banco_gente.png" width="100%" />
             <br></br>
-            CONSULTA DE ESTADO SOLICITUD CREDITO LIBRE DISPONIBILIDAD
+            <div className="text-center p-3">
+                <b>CONSULTA DE ESTADO SOLICITUD CREDITO LIBRE DISPONIBILIDAD</b>
+            </div>
             <form onSubmit={onSubmit} style={{ margin: "10px" }}>
                 <label htmlFor="cuil">CUIL: </label>
                 <input
@@ -54,10 +60,44 @@ const FormConsulta = () => {
                     onChange={onChange}
                     value={cuil}
                 />
-                <button type="submit" >
+                <br></br>
+                <button className="btn btn-primary" type="submit" >
                     consultar
                 </button>
+                <br></br><br></br>
+
+                <ReCAPTCHA
+                    //https://bancodelagente-cba-gov-ar.web.app/
+                    sitekey="6LfsQhQcAAAAACwwTgk47g1TVusF8mhGb4eRC_lO"
+                    onChange={onChange}
+                />
             </form>
+
+            {resultado ?
+
+                <table className="table table-striped row p-3" >
+
+                    <tbody>
+                        <tr>
+                            <th scope="row">CUIT</th>
+                            <td>{resultado.CUIT}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Nombre</th>
+                            <td>{resultado.NOMBRES}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Apellido</th>
+                            <td>{resultado.APELLIDOS}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Mensaje</th>
+                            <td>{resultado.MENSAJE}</td>
+                        </tr>
+                    </tbody>
+
+                </table> : null}
+
         </div>
     );
 };
