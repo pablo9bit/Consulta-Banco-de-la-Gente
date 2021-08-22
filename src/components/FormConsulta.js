@@ -28,7 +28,7 @@ const FormConsulta = ({ props }) => {
     //console.log(recaptchaValue);
 
     if (recaptchaValue) {
-      if (cuil.trim() === "") {
+      if (cuil.trim().length !== 11) {
         setAlerta({
           msg: "Debe ingresar su Número de CUIL sin guiones",
           class: "danger",
@@ -70,13 +70,12 @@ const FormConsulta = ({ props }) => {
         <b>CONSULTA DE ESTADO SOLICITUD CREDITO LIBRE DISPONIBILIDAD</b>
       </div>
       <form onSubmit={onSubmit} style={{ margin: "50px" }}>
-        <label htmlFor="cuil">CUIL: </label>
         <input
           type="text"
           name="cuil"
           className="form-control"
           id="cuil"
-          placeholder="Ingrese su CUIL"
+          placeholder="Ingrese su CUIL (Sin Guiones)"
           onChange={onChange}
           value={cuil}
         />
@@ -93,7 +92,6 @@ const FormConsulta = ({ props }) => {
           //https://bancodelagente-cba-gov-ar.web.app/
           //sitekey="6LfsQhQcAAAAACwwTgk47g1TVusF8mhGb4eRC_lO"
           sitekey="6LeH_HUbAAAAAApK164OIBLZOX0uOaZWiXYRZjw_"
-          //size="invisible"
           ref={recaptchaRef}
           onChange={onChange}
         />
