@@ -76,7 +76,7 @@ const FormConsulta = () => {
       .on(
         "child_added",
         (snapshot) => {
-          console.log("salida", snapshot.val());
+          //console.log("salida", snapshot.val());
 
           let data = null;
           if (snapshot.val()) {
@@ -89,6 +89,8 @@ const FormConsulta = () => {
               msg: "No se encontraron resultados.",
               class: "danger",
             });
+          }else{
+            setAlerta(null);
           }
           setLoadingLocal(false);
         }
@@ -108,7 +110,7 @@ const FormConsulta = () => {
       } else {
         mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " Se encuentra en proceso de control y verificación de la documentación presentada";
       }
-      console.log(mje);
+      //console.log(mje);
     }
 
     return mje;
