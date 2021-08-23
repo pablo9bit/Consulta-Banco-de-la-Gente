@@ -1,10 +1,10 @@
-import { useState, createRef } from "react";
+import { useState, createRef, useEffect } from "react";
 import firebase from "../config/firebase";
 import ReCAPTCHA from "react-google-recaptcha";
 import useAlerta from "../hooks/useAlerta";
 
-const FormConsulta = ({ props }) => {
-  const [resultado, setResultado] = useState(null);
+const FormConsulta = () => {
+  const [resultado, setResultado] = useState({ data: null, consultado: false });
   const [setAlerta, MostrarAlerta] = useAlerta(null);
   const [loadingLocal, setLoadingLocal] = useState(null);
 
@@ -12,6 +12,19 @@ const FormConsulta = ({ props }) => {
   const { cuil } = DatosForm;
 
   const recaptchaRef = createRef();
+
+  useEffect(() => {
+    const alertar = () => {
+      if (resultado.data === null && resultado.consultado && !loadingLocal) {
+        setAlerta({
+          msg: "No se encontraron resultados.",
+          class: "danger",
+        });
+      }
+    };
+
+    alertar();
+  }, [resultado, loadingLocal]);
 
   const onChange = (e) => {
     LeerForm({
@@ -23,7 +36,8 @@ const FormConsulta = ({ props }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
     setAlerta(null);
-    setResultado(null);
+    setResultado({ data: null, consultado: false });
+
     const recaptchaValue = recaptchaRef.current.getValue();
     //console.log(recaptchaValue);
 
@@ -33,7 +47,6 @@ const FormConsulta = ({ props }) => {
           msg: "Debe ingresar su Número de CUIL sin guiones",
           class: "danger",
         });
-        return;
       } else {
         consultar(parseInt(cuil));
       }
@@ -42,6 +55,7 @@ const FormConsulta = ({ props }) => {
         msg: "Debe validar reCAPTCHA",
         class: "danger",
       });
+      //return;
     }
   };
 
@@ -55,11 +69,23 @@ const FormConsulta = ({ props }) => {
     ref
       .orderByChild("CUIT")
       .equalTo(miculnum)
-      .on("child_added", (snapshot) => {
-        //console.log(snapshot.val());
-        setResultado(snapshot.val());
-        setLoadingLocal(false);
-      });
+      .on(
+        "value",
+        (snapshot) => {
+          console.log("salida", snapshot.val());
+
+          let data = null;
+          if (snapshot.val()) {
+            data = snapshot.val()[1];
+          }
+
+          setResultado({ data, consultado: true });
+          setLoadingLocal(false);
+        },
+        (errorObject) => {
+          console.log("The read failed: " + errorObject.name);
+        }
+      );
   };
 
   return (
@@ -98,24 +124,24 @@ const FormConsulta = ({ props }) => {
       </form>
       <MostrarAlerta />
 
-      {resultado ? (
+      {resultado.data ? (
         <table className="table table-striped row p-3">
           <tbody>
             <tr>
               <th scope="row">CUIT</th>
-              <td>{resultado.CUIT}</td>
+              <td>{resultado.data.CUIT}</td>
             </tr>
             <tr>
               <th scope="row">Nombre</th>
-              <td>{resultado.NOMBRES}</td>
+              <td>{resultado.data.NOMBRES}</td>
             </tr>
             <tr>
               <th scope="row">Apellido</th>
-              <td>{resultado.APELLIDOS}</td>
+              <td>{resultado.data.APELLIDOS}</td>
             </tr>
             <tr>
               <th scope="row">Mensaje</th>
-              <td>{resultado.MENSAJE}</td>
+              <td>{resultado.data.MENSAJE}</td>
             </tr>
           </tbody>
         </table>
