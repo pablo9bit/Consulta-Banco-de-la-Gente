@@ -15,11 +15,14 @@ const FormConsulta = () => {
 
   useEffect(() => {
     const alertar = () => {
-      if (resultado.data === null && resultado.consultado && !loadingLocal) {
+      if (resultado.data === null && resultado.consultado && !loadingLocal ) {
         setAlerta({
           msg: "No se encontraron resultados.",
           class: "danger",
         });
+      }
+      if(resultado.data){
+        setAlerta(null)
       }
     };
 
@@ -36,9 +39,8 @@ const FormConsulta = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     setAlerta(null);
-    setResultado({ data: null, consultado: false });
 
-    const recaptchaValue = recaptchaRef.current.getValue();
+    const recaptchaValue =recaptchaRef.current.getValue();
     //console.log(recaptchaValue);
 
     if (recaptchaValue) {
@@ -48,7 +50,7 @@ const FormConsulta = () => {
           class: "danger",
         });
       } else {
-        consultar(parseInt(cuil));
+        consultar(cuil);
       }
     } else {
       setAlerta({
@@ -60,34 +62,57 @@ const FormConsulta = () => {
   };
 
   const consultar = async (micuil) => {
+    setResultado({ data: null, consultado: true });
+
     setLoadingLocal(true);
-    const miculnum = parseInt(micuil);
+
     const db = firebase.database();
     const ref = db.ref("/");
 
     //console.log(cuil);
     ref
-      .orderByChild("CUIT")
-      .equalTo(miculnum)
+      .orderByChild("CUIL")
+      .equalTo(micuil)
       .on(
-        "value",
+        "child_added",
         (snapshot) => {
           console.log("salida", snapshot.val());
 
           let data = null;
           if (snapshot.val()) {
-            data = snapshot.val()[1];
+            data = snapshot.val();
           }
 
           setResultado({ data, consultado: true });
+          if (data === null  ) {
+            setAlerta({
+              msg: "No se encontraron resultados.",
+              class: "danger",
+            });
+          }
           setLoadingLocal(false);
-        },
-        (errorObject) => {
-          console.log("The read failed: " + errorObject.name);
         }
       );
+      setLoadingLocal(false);
   };
 
+  const Mensaje = () => {
+    let mje = "";
+    if (resultado.data.APTO_CARGA === "True") {
+      mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " en base a un análisis preliminar, la documentación se encuentra correcta, continúa en proceso de evaluación. Se le notificará vía CIDI cualquier resolución.. Se le notificará via CIDI cualquier resolución"
+
+    } else {
+
+      if (resultado.data.EVALUADO === "True") {
+        mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " posee las siguientes observaciones: " + resultado.data.PARA_NOTIFICAR + " Si desea puede completar la documentación en <a href='https://tramitesbancodelagente.cba.gov.ar/formulario/ingreso-documentacion-faltante'>https://tramitesbancodelagente.cba.gov.ar/formulario/ingreso-documentacion-faltante</a";
+      } else {
+        mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " Se encuentra en proceso de control y verificación de la documentación presentada";
+      }
+      console.log(mje);
+    }
+
+    return mje;
+  }
   return (
     <div>
       <img src="header_banco_gente.png" width="100%" alt="bancodelagente" />
@@ -119,8 +144,8 @@ const FormConsulta = () => {
           {loadingLocal ? <div className="m-2"><b>Buscando...</b></div> : ""}
         </div>
         <br></br>
-        <div style={{ display: "flex", justifyContent: "center" }}>
 
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <ReCAPTCHA
             //https://bancodelagente-cba-gov-ar.web.app/
             //sitekey="6LfsQhQcAAAAACwwTgk47g1TVusF8mhGb4eRC_lO"
@@ -129,6 +154,7 @@ const FormConsulta = () => {
             onChange={onChange}
           />
         </div>
+
       </form>
       <MostrarAlerta />
 
@@ -137,19 +163,21 @@ const FormConsulta = () => {
           <tbody>
             <tr>
               <th scope="row">CUIT</th>
-              <td>{resultado.data.CUIT}</td>
+              <td>{resultado.data.CUIL}</td>
             </tr>
             <tr>
               <th scope="row">Nombre</th>
-              <td>{resultado.data.NOMBRES}</td>
+              <td>{resultado.data.Nombres}</td>
             </tr>
             <tr>
               <th scope="row">Apellido</th>
-              <td>{resultado.data.APELLIDOS}</td>
+              <td>{resultado.data.Apellido}</td>
             </tr>
             <tr>
               <th scope="row">Mensaje</th>
-              <td>{resultado.data.MENSAJE}</td>
+              <td>      
+                <div contentEditable='true' dangerouslySetInnerHTML={{ __html: Mensaje() }}></div>
+              </td>
             </tr>
           </tbody>
         </table>
