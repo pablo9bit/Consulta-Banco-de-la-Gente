@@ -1,4 +1,4 @@
-import { useState, createRef, useEffect } from "react";
+import { useState, createRef } from "react";
 import firebase from "../config/firebase";
 import ReCAPTCHA from "react-google-recaptcha";
 import useAlerta from "../hooks/useAlerta";
@@ -6,28 +6,10 @@ import useAlerta from "../hooks/useAlerta";
 const FormConsulta = () => {
   const [resultado, setResultado] = useState({ data: null, consultado: false });
   const [setAlerta, MostrarAlerta] = useAlerta(null);
-  const [loadingLocal, setLoadingLocal] = useState(null);
-
   const [DatosForm, LeerForm] = useState({ cuil: "" });
   const { cuil } = DatosForm;
 
   const recaptchaRef = createRef();
-
-  useEffect(() => {
-    const alertar = () => {
-      if (resultado.data === null && resultado.consultado && !loadingLocal ) {
-        setAlerta({
-          msg: "No se encontraron resultados.",
-          class: "danger",
-        });
-      }
-      if(resultado.data){
-        setAlerta(null)
-      }
-    };
-
-    alertar();
-  }, [resultado, loadingLocal]);
 
   const onChange = (e) => {
     LeerForm({
@@ -41,7 +23,6 @@ const FormConsulta = () => {
     setAlerta(null);
 
     const recaptchaValue =recaptchaRef.current.getValue();
-    //console.log(recaptchaValue);
 
     if (recaptchaValue) {
       if (cuil.trim().length !== 11) {
@@ -50,53 +31,42 @@ const FormConsulta = () => {
           class: "danger",
         });
       } else {
-        consultar(cuil);
+        buscar(cuil);
       }
     } else {
       setAlerta({
         msg: "Debe validar reCAPTCHA",
         class: "danger",
       });
-      //return;
     }
   };
 
-  const consultar = async (micuil) => {
-    setResultado({ data: null, consultado: true });
 
-    setLoadingLocal(true);
+  const buscar = async (micuil) => {
+    setResultado({ data: null, consultado: false });
 
     const db = firebase.database();
     const ref = db.ref("/");
 
-    //console.log(cuil);
     ref
       .orderByChild("CUIL")
       .equalTo(micuil)
-      .on(
-        "child_added",
-        (snapshot) => {
-          //console.log("salida", snapshot.val());
-
-          let data = null;
-          if (snapshot.val()) {
-            data = snapshot.val();
-          }
-
-          setResultado({ data, consultado: true });
-          if (data === null  ) {
-            setAlerta({
-              msg: "No se encontraron resultados.",
-              class: "danger",
-            });
-          }else{
-            setAlerta(null);
-          }
-          setLoadingLocal(false);
+      .once("value")
+      .then((snapshot) => {
+        if (snapshot.val()) {
+          const data = snapshot.val();
+          const key = Object.keys(snapshot.val())[0];
+          setResultado({ data: data[key], consultado: true });
+        } else {
+          setAlerta({
+            msg: "No se encontraron resultados.",
+            class: "danger",
+          });
         }
-      );
-      setLoadingLocal(false);
+      });
+
   };
+
 
   const Mensaje = () => {
     let mje = "";
@@ -136,9 +106,7 @@ const FormConsulta = () => {
           />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          {loadingLocal ? <div className="m-2"><b>Buscando...</b></div> : ""}
-        </div>
+     
         <br></br>
 
         <div style={{ display: "flex", justifyContent: "center" }}>
