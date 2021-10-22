@@ -106,7 +106,7 @@ const FormConsulta = () => {
     } else {
 
       if (resultado.data.EVALUADO === "True") {
-        mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " posee las siguientes observaciones: " + resultado.data.PARA_NOTIFICAR + ". Si desea puede completar la documentación en <a href='https://tramitesbancodelagente.cba.gov.ar/formulario/ingreso-documentacion-faltante'>https://tramitesbancodelagente.cba.gov.ar/formulario/ingreso-documentacion-faltante</a";
+        mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " posee las siguientes observaciones: " + resultado.data.PARA_NOTIFICAR;
       } else {
         mje = "Su solicitud de crédito número de Sticker " + resultado.data.Sticker + " se encuentra en proceso de control y verificación de la documentación presentada.";
       }
