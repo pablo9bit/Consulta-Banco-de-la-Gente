@@ -57,6 +57,7 @@ const FormConsulta = () => {
           const data = snapshot.val();
           const key = Object.keys(snapshot.val())[0];
           setResultado({ data: data[key], consultado: true });
+          console.log(data[key])
         } else {
           setAlerta({
             msg: "No se encontraron resultados.",
